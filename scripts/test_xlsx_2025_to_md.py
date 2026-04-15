@@ -43,3 +43,26 @@ def test_membros_soma_bate_total_anual(wb):
         total_ano += tot
     # Global sheet row 3 col O (annual total dizimos)
     assert round(total_ano, 2) == 35316.00
+
+
+def test_janeiro_nao_membros(wb):
+    from xlsx_2025_to_md import extract_nao_membros
+    ws = wb.worksheets[2]
+    nao_m, total = extract_nao_membros(ws)
+    # at least 34 standard rows, some with custom labels at 94-97
+    assert len(nao_m) >= 34
+    # Ronald Alexander Morais Pereira (row 88) = 1100
+    assert ("Ronald Alexander Morais Pereira", 1100.0) in nao_m
+    # custom label row preserved
+    assert any("Juliano Alberto" in n for n, _ in nao_m)
+    assert total == 5519.0
+
+
+def test_nao_membros_soma_bate_total_anual(wb):
+    from xlsx_2025_to_md import extract_nao_membros
+    total_ano = 0.0
+    for idx in range(2, 14):
+        _, tot = extract_nao_membros(wb.worksheets[idx])
+        total_ano += tot
+    # Global row 8 col O
+    assert round(total_ano, 2) == 54135.66

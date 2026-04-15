@@ -78,3 +78,18 @@ def extract_membros(ws) -> tuple[list[tuple[str, float | None]], float]:
         result.append((str(name).strip(), value))
     total = cell_num(ws, ROW_TOTAL_MEMBROS, COL_VALUE) or 0.0
     return result, total
+
+
+def extract_nao_membros(ws) -> tuple[list[tuple[str, float | None]], float]:
+    """Non-members section runs from row 60 until the TOTAL row (98).
+    Rows are numbered #1..#N in col A; some rows (e.g. 94-97) have compound labels.
+    Skip rows without a name in col B."""
+    result = []
+    for row in range(ROW_NAO_MEMBROS_START, ROW_TOTAL_NAO_MEMBROS):
+        name = ws.cell(row, COL_LABEL).value
+        if not name or str(name).strip().upper() == "TOTAL":
+            continue
+        value = cell_num(ws, row, COL_VALUE)
+        result.append((str(name).strip(), value))
+    total = cell_num(ws, ROW_TOTAL_NAO_MEMBROS, COL_VALUE) or 0.0
+    return result, total
