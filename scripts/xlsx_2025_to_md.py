@@ -53,7 +53,8 @@ ROW_TOTAL_SAIDAS = 128
 ROW_RESUMO_SALDO_MES = 132
 ROW_RESUMO_NOVO_SALDO = 135
 COL_VALUE = 7  # G
-COL_LABEL = 2  # B
+COL_LABEL = 2  # B (used for membros/nao-membros sections)
+COL_LABEL_A = 1  # A (used for saidas section — labels are in col A there)
 COL_SALDO_ANT = 3  # C
 
 
@@ -93,6 +94,41 @@ def extract_nao_membros(ws) -> tuple[list[tuple[str, float | None]], float]:
         result.append((str(name).strip(), value))
     total = cell_num(ws, ROW_TOTAL_NAO_MEMBROS, COL_VALUE) or 0.0
     return result, total
+
+
+def extract_saidas(ws) -> dict:
+    """Named categories are at fixed rows. Rows 123+ may contain 'Outros' label plus
+    custom labels (e.g. '1/3 Férias do Obreiro') — collect all non-empty rows between
+    the named 'Outros' (123) and TOTAL (128) as `outros` list.
+    Note: saidas labels are in col A (not col B like membros/nao-membros)."""
+    result = {}
+    for key, row in ROW_SAIDAS.items():
+        if key == "outros":
+            continue
+        v = cell_num(ws, row, COL_VALUE)
+        # scalar fields that default to 0 when absent
+        if key in ("planoCooperativo", "zeladoria", "sustentoMinisterial", "copasa"):
+            result[key] = v if v is not None else 0.0
+        else:
+            result[key] = v if v is not None else 0.0
+    # "Outros" and any custom rows between 123..127
+    outros = []
+    for row in range(ROW_SAIDAS["outros"], ROW_TOTAL_SAIDAS):
+        label = ws.cell(row, COL_LABEL_A).value
+        v = cell_num(ws, row, COL_VALUE)
+        if not label or v is None or v == 0:
+            continue
+        outros.append({"descricao": str(label).strip(), "valor": round(v, 2)})
+    result["outros"] = outros
+    result["total"] = cell_num(ws, ROW_TOTAL_SAIDAS, COL_VALUE) or 0.0
+    return result
+
+
+def extract_resumo(ws) -> dict:
+    return {
+        "saldoMes": cell_num(ws, ROW_RESUMO_SALDO_MES, COL_VALUE),
+        "novoSaldo": cell_num(ws, ROW_RESUMO_NOVO_SALDO, COL_VALUE),
+    }
 
 
 def extract_ofertas(ws) -> tuple[dict, float]:
