@@ -66,3 +66,18 @@ def test_nao_membros_soma_bate_total_anual(wb):
         total_ano += tot
     # Global row 8 col O
     assert round(total_ano, 2) == 54135.66
+
+
+def test_janeiro_ofertas_and_entrada_geral(wb):
+    from xlsx_2025_to_md import extract_ofertas, extract_entrada_geral
+    ws = wb.worksheets[2]
+    ofertas, total_of = extract_ofertas(ws)
+    assert ofertas == {
+        "anonimas": 553.55, "missoes": 0.0, "recantoVida": 30.0,
+        "beneficencia": 0.0, "outros": 155.85,
+    }
+    assert total_of == 739.4
+    eg = extract_entrada_geral(ws)
+    assert eg["saldoAnterior"] == 7264.71
+    assert eg["totalMes"] == 8398.4
+    assert eg["somatorio"] == 15663.11

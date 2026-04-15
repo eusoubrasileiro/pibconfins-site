@@ -93,3 +93,19 @@ def extract_nao_membros(ws) -> tuple[list[tuple[str, float | None]], float]:
         result.append((str(name).strip(), value))
     total = cell_num(ws, ROW_TOTAL_NAO_MEMBROS, COL_VALUE) or 0.0
     return result, total
+
+
+def extract_ofertas(ws) -> tuple[dict, float]:
+    ofertas = {k: cell_num(ws, row, COL_VALUE) for k, row in ROW_OFERTAS.items()}
+    # Normalize None to 0.0 for ofertas (they have explicit 0 in xlsx, but be safe)
+    ofertas = {k: (v if v is not None else 0.0) for k, v in ofertas.items()}
+    total = cell_num(ws, ROW_TOTAL_OFERTAS, COL_VALUE) or 0.0
+    return ofertas, total
+
+
+def extract_entrada_geral(ws) -> dict:
+    return {
+        "saldoAnterior": cell_num(ws, ROW_SALDO_ANTERIOR, COL_SALDO_ANT),
+        "totalMes": cell_num(ws, ROW_TOTAL_ENTRADAS_MES, COL_VALUE),
+        "somatorio": cell_num(ws, ROW_SOMATORIO_ENTRADAS, COL_VALUE),
+    }
