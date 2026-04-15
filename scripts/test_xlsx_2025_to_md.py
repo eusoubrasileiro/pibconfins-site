@@ -102,6 +102,25 @@ def test_saidas_soma_bate_total_anual(wb):
     assert round(total_ano, 2) == 92137.54
 
 
+def test_render_md_shape(wb):
+    from xlsx_2025_to_md import render_md, extract_month
+    data = extract_month(wb.worksheets[2], month=1)
+    md = render_md(data, month=1)
+    assert md.startswith("# Relatório Financeiro — Congregação em Confins — Janeiro/2025")
+    assert "## ENTRADAS — Membros" in md
+    assert "## ENTRADAS — Não Membros" in md
+    assert "## OFERTAS" in md
+    assert "## ENTRADA GERAL" in md
+    assert "## SAÍDAS" in md
+    assert "## RESUMO DE CAIXA" in md
+    # known values rendered
+    assert "Adenayr Morgan Marques | 130,00" in md
+    assert "**TOTAL MEMBROS** | **R$ 2.140,00**" in md
+    assert "R$ 10.839,18" in md  # novo saldo
+    # header note
+    assert "Gerado a partir da Planilha 2025" in md
+
+
 def test_janeiro_ofertas_and_entrada_geral(wb):
     from xlsx_2025_to_md import extract_ofertas, extract_entrada_geral
     ws = wb.worksheets[2]

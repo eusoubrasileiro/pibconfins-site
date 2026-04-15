@@ -145,3 +145,152 @@ def extract_entrada_geral(ws) -> dict:
         "totalMes": cell_num(ws, ROW_TOTAL_ENTRADAS_MES, COL_VALUE),
         "somatorio": cell_num(ws, ROW_SOMATORIO_ENTRADAS, COL_VALUE),
     }
+
+
+@dataclass
+class MesData:
+    month: int
+    membros: list[tuple[str, float | None]]
+    total_membros: float
+    nao_membros: list[tuple[str, float | None]]
+    total_nao_membros: float
+    ofertas: dict
+    total_ofertas: float
+    entrada_geral: dict
+    saidas: dict
+    resumo: dict
+
+
+def extract_month(ws, month: int) -> MesData:
+    membros, total_m = extract_membros(ws)
+    nao_m, total_nm = extract_nao_membros(ws)
+    of, total_of = extract_ofertas(ws)
+    return MesData(
+        month=month,
+        membros=membros, total_membros=total_m,
+        nao_membros=nao_m, total_nao_membros=total_nm,
+        ofertas=of, total_ofertas=total_of,
+        entrada_geral=extract_entrada_geral(ws),
+        saidas=extract_saidas(ws),
+        resumo=extract_resumo(ws),
+    )
+
+
+def fmt_brl(v: float | None) -> str:
+    """1234.56 -> '1.234,56'; None -> '—'."""
+    if v is None:
+        return "—"
+    negative = v < 0
+    s = f"{abs(v):,.2f}".replace(",", "_").replace(".", ",").replace("_", ".")
+    return f"-{s}" if negative else s
+
+
+def _pessoa_row(i: int, nome: str, valor: float | None) -> str:
+    return f"| {i} | {nome} | {fmt_brl(valor)} |"
+
+
+def render_md(d: MesData, month: int) -> str:
+    mes_nome = MONTH_NAMES[month]
+    lines = [
+        f"# Relatório Financeiro — Congregação em Confins — {mes_nome}/2025",
+        "",
+        "> **Gerado a partir da Planilha 2025 consolidada de Pr. Luis em 2026-04-15.**",
+        "> Totais derivados da planilha; comprovantes individuais não disponíveis neste histórico.",
+        "",
+        "---",
+        "",
+        "## ENTRADAS — Membros",
+        "",
+        "| # | Nome | Valor (R$) |",
+        "|---|------|-----------:|",
+    ]
+    for i, (nome, valor) in enumerate(d.membros, start=1):
+        lines.append(_pessoa_row(i, nome, valor))
+    lines.append(f"| | **TOTAL MEMBROS** | **R$ {fmt_brl(d.total_membros)}** |")
+    lines += ["", "## ENTRADAS — Não Membros", "",
+              "| # | Nome | Valor (R$) |",
+              "|---|------|-----------:|"]
+    for i, (nome, valor) in enumerate(d.nao_membros, start=1):
+        lines.append(_pessoa_row(i, nome, valor))
+    lines.append(f"| | **TOTAL NÃO MEMBROS** | **R$ {fmt_brl(d.total_nao_membros)}** |")
+    lines += ["", "## OFERTAS", "",
+              "| Tipo | Valor (R$) |", "|------|-----------:|",
+              f"| Anônimas | {fmt_brl(d.ofertas['anonimas'])} |",
+              f"| Missões | {fmt_brl(d.ofertas['missoes'])} |",
+              f"| Recanto Vida | {fmt_brl(d.ofertas['recantoVida'])} |",
+              f"| Beneficência | {fmt_brl(d.ofertas['beneficencia'])} |",
+              f"| Outros | {fmt_brl(d.ofertas['outros'])} |",
+              f"| **TOTAL OFERTAS** | **R$ {fmt_brl(d.total_ofertas)}** |"]
+    eg = d.entrada_geral
+    lines += ["", "## ENTRADA GERAL", "",
+              "| | |", "|---|---:|",
+              f"| Saldo Recorrente do Mês Anterior | R$ {fmt_brl(eg['saldoAnterior'])} |",
+              f"| Total de Entradas Deste Mês | R$ {fmt_brl(eg['totalMes'])} |",
+              f"| **Somatório Geral de Entradas** | **R$ {fmt_brl(eg['somatorio'])}** |"]
+    s = d.saidas
+    lines += ["", "## SAÍDAS", "",
+              "| Especificação | Valor (R$) |", "|---|---:|",
+              f"| Plano Cooperativo | {fmt_brl(s['planoCooperativo'])} |",
+              f"| Zeladoria (1/3 do salário vigente) | {fmt_brl(s['zeladoria'])} |",
+              f"| Sustento Ministerial | {fmt_brl(s['sustentoMinisterial'])} |",
+              f"| Missões | {fmt_brl(s['missoes'])} |",
+              f"| COPASA | {fmt_brl(s['copasa'])} |",
+              f"| CEMIG | {fmt_brl(s['cemig'])} |",
+              f"| Manutenção e Limpeza | {fmt_brl(s['manutencao'])} |",
+              f"| Despesas Eventuais | {fmt_brl(s['despesasEventuais'])} |"]
+    for o in s["outros"]:
+        lines.append(f"| {o['descricao']} | {fmt_brl(o['valor'])} |")
+    lines.append(f"| **TOTAL SAÍDAS** | **R$ {fmt_brl(s['total'])}** |")
+    r = d.resumo
+    lines += ["", "## RESUMO DE CAIXA", "",
+              "| | |", "|---|---:|",
+              f"| Total de Entrada do Mês | R$ {fmt_brl(eg['totalMes'])} |",
+              f"| Total de Saídas do Mês | R$ {fmt_brl(s['total'])} |",
+              f"| **Saldo do Mês** | **R$ {fmt_brl(r['saldoMes'])}** |",
+              f"| Saldo Recorrente do Mês Anterior | R$ {fmt_brl(eg['saldoAnterior'])} |",
+              f"| **Novo Saldo Para o Próximo Mês** | **R$ {fmt_brl(r['novoSaldo'])}** |",
+              "", "## Assinaturas", "",
+              "- Presidente: Luis Gustavo Amaral Muritiba ___________________________",
+              "- 1º Tesoureiro: ___________________________________________________",
+              "- 2º Tesoureiro: ___________________________________________________"]
+    return "\n".join(lines) + "\n"
+
+
+def write_all(xlsx: Path, out_root: Path, dry_run: bool = False) -> None:
+    wb = openpyxl.load_workbook(xlsx, data_only=True)
+    anual_ent = 0.0
+    anual_sai = 0.0
+    for idx in range(12):
+        month = idx + 1
+        ws = wb.worksheets[idx + 2]
+        data = extract_month(ws, month)
+        md = render_md(data, month)
+        folder = out_root / f"2025-{month:02d}-{MONTH_SLUG[month]}"
+        target = folder / f"relatorio_mensal_2025-{month:02d}.md"
+        anual_ent += data.entrada_geral["totalMes"] or 0
+        anual_sai += data.saidas["total"]
+        if dry_run:
+            print(f"would write {target}")
+            continue
+        folder.mkdir(parents=True, exist_ok=True)
+        target.write_text(md, encoding="utf-8")
+        print(f"✓ wrote {target}")
+    print(f"\nAnnual totals: entradas={anual_ent:.2f}  saídas={anual_sai:.2f}")
+    assert abs(anual_ent - 104539.56) < 0.01, f"entradas mismatch: {anual_ent}"
+    assert abs(anual_sai - 92137.54) < 0.01, f"saídas mismatch: {anual_sai}"
+    print("✓ annual totals reconcile with global sheet")
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--xlsx", type=Path, default=XLSX_DEFAULT)
+    ap.add_argument("--out", type=Path, default=FINANCE_ROOT)
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
+    write_all(args.xlsx, args.out, args.dry_run)
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())
