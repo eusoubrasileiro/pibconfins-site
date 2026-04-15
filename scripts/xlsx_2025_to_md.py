@@ -65,3 +65,16 @@ def cell_num(ws, row: int, col: int) -> float | None:
         return float(v)
     except (TypeError, ValueError):
         return None
+
+
+def extract_membros(ws) -> tuple[list[tuple[str, float | None]], float]:
+    """Return (list of (name, value|None), printed total)."""
+    result = []
+    for row in range(ROW_MEMBROS[0], ROW_MEMBROS[1] + 1):
+        name = ws.cell(row, COL_LABEL).value
+        if not name:
+            continue
+        value = cell_num(ws, row, COL_VALUE)
+        result.append((str(name).strip(), value))
+    total = cell_num(ws, ROW_TOTAL_MEMBROS, COL_VALUE) or 0.0
+    return result, total
