@@ -391,6 +391,10 @@
         {
           "descricao": "Outros",
           "valor": 735.36
+        },
+        {
+          "descricao": "1/3 Férias do Obreiro",
+          "valor": 1656.57
         }
       ],
       "total": 4823.93
@@ -1190,6 +1194,10 @@
       "despesasEventuais": 342.6,
       "outros": [
         {
+          "descricao": "Outros - Dia das mulheres+Lanche mulheres",
+          "valor": 235.0
+        },
+        {
           "descricao": "MTS e impressões min inf. Integração",
           "valor": 227.04
         }
@@ -1591,6 +1599,14 @@
       "despesasEventuais": 84.16,
       "outros": [
         {
+          "descricao": "Outros Pórtico (Obras fachada)",
+          "valor": 3850.0
+        },
+        {
+          "descricao": "COPASA - Janeiro/24 até Abril/25",
+          "valor": 867.75
+        },
+        {
           "descricao": "Obras fachada (fornecedor vidro)",
           "valor": 2350.0
         },
@@ -1602,7 +1618,7 @@
       "total": 14005.3
     },
     "resumo": {
-      "saldoMes": null,
+      "saldoMes": -7879.18,
       "novoSaldo": 11336.27
     },
     "validacao": {
@@ -2007,7 +2023,7 @@
       "total": 12252.02
     },
     "resumo": {
-      "saldoMes": null,
+      "saldoMes": -4798.22,
       "novoSaldo": 6538.05
     },
     "validacao": {
@@ -2407,6 +2423,10 @@
         {
           "descricao": "Min. Infantil - Material - impressões",
           "valor": 84.6
+        },
+        {
+          "descricao": "sobra CEMIG mês de Maio",
+          "valor": 18.51
         }
       ],
       "total": 7078.81
@@ -4005,7 +4025,24 @@
       "cemig": 0.0,
       "manutencao": 110.9,
       "despesasEventuais": 69.8,
-      "outros": [],
+      "outros": [
+        {
+          "descricao": "Diferença conta COPASA Agosto",
+          "valor": -12.98
+        },
+        {
+          "descricao": "Outros - não sabemos",
+          "valor": 126.21
+        },
+        {
+          "descricao": "Outros - não sabemos",
+          "valor": 100.0
+        },
+        {
+          "descricao": "Outros - não sabemos",
+          "valor": 51.2
+        }
+      ],
       "total": 7019.8
     },
     "resumo": {
@@ -4800,6 +4837,10 @@
       "despesasEventuais": 120.0,
       "outros": [
         {
+          "descricao": "Outros = Transmissor e Receptor multimídia",
+          "valor": 388.0
+        },
+        {
           "descricao": "Fraldário BebÊs",
           "valor": 575.04
         }
@@ -5255,9 +5296,9 @@
       }
     },
     "saidas": {
-      "planoCooperativo": 601.55,
+      "planoCooperativo": 601.65,
       "zeladoria": 506.0,
-      "sustentoMinisterial": 5200.0,
+      "sustentoMinisterial": 5700.0,
       "missoes": null,
       "copasa": 57.81,
       "cemig": null,
@@ -5726,9 +5767,13 @@
       "missoes": null,
       "copasa": 47.98,
       "cemig": 229.18,
-      "manutencao": 295.45,
+      "manutencao": null,
       "despesasEventuais": 237.0,
       "outros": [
+        {
+          "descricao": "Manutenção e Limpeza (Gás, Copo, Itens de limpeza, água)",
+          "valor": 295.45
+        },
         {
           "descricao": "Adaptador USB 3.0",
           "valor": 38.7

@@ -117,51 +117,52 @@ def parse_entrada_geral(md: str) -> dict:
     return result
 
 
+STANDARD_SAIDA_LABELS: dict[str, re.Pattern[str]] = {
+    "plano_cooperativo": re.compile(r"^Plano Cooperativo$"),
+    "zeladoria": re.compile(r"^Zeladoria(\s*\([^)]*\))?$"),
+    "sustento_ministerial": re.compile(r"^Sustento Ministerial$"),
+    "missoes": re.compile(r"^Missões$"),
+    "copasa": re.compile(r"^COPASA$"),
+    "cemig": re.compile(r"^CEMIG(\s*\([^)]*\))?$"),
+    "manutencao": re.compile(r"^Manutenção e Limpeza$"),
+    "despesas_eventuais": re.compile(r"^Despesas Eventuais(\s*\([^)]*\))?$"),
+}
+OUTROS_STD = re.compile(r"^Outros(\s*\(([^)]*)\))?$")
+SCALAR_ZERO_DEFAULT = {"plano_cooperativo", "zeladoria", "sustento_ministerial", "copasa"}
+
+
 def parse_saidas(md: str) -> Saidas:
     start = md.index("## SAÍDAS")
     end = md.index("\n## ", start + 1)
     block = md[start:end]
     s = Saidas()
-    patterns_scalar = {
-        "plano_cooperativo": r"Plano Cooperativo\s*\|\s*([^|]+?)\s*\|",
-        "zeladoria": r"Zeladoria[^|]*\|\s*([^|]+?)\s*\|",
-        "sustento_ministerial": r"Sustento Ministerial\s*\|\s*([^|]+?)\s*\|",
-        "missoes": r"\n\|\s*Missões\s*\|\s*([^|]+?)\s*\|",
-        "copasa": r"COPASA\s*\|\s*([^|]+?)\s*\|",
-        "cemig": r"CEMIG[^|]*\|\s*([^|]+?)\s*\|",
-        "manutencao": r"Manutenção[^|]*\|\s*([^|]+?)\s*\|",
-        "despesas_eventuais": r"Despesas Eventuais[^|]*\|\s*([^|]+?)\s*\|",
-    }
-    for key, pat in patterns_scalar.items():
-        m = re.search(pat, block)
-        val = parse_brl(m.group(1)) if m else None
-        setattr(s, key, val if val is not None else (0.0 if key in ("plano_cooperativo", "zeladoria", "sustento_ministerial", "copasa") else None))
-    # "Outros" + any non-standard labelled expense rows
-    outros_re = re.compile(r"\|\s*Outros\s*(\([^)]*\))?\s*\|\s*([^|]+?)\s*\|")
-    for m in outros_re.finditer(block):
-        desc = (m.group(1) or "").strip("() ") or "Outros"
-        valor = parse_brl(m.group(2))
-        if valor is not None:
-            s.outros.append({"descricao": desc, "valor": valor})
-    # Mar has extra labelled expense rows (e.g., "Mobília ministério infantil")
-    extra_rows_re = re.compile(r"^\|\s*([A-ZÀ-Ÿ][^|]*?)\s*\|\s*([\d.,]+)\s*\|$", re.MULTILINE)
-    known_labels = {
-        "Plano Cooperativo", "Zeladoria (1/3 do salário vigente)", "Sustento Ministerial",
-        "Missões", "COPASA", "CEMIG", "Manutenção e Limpeza",
-        "Despesas Eventuais", "Outros", "Especificação",
-    }
-    for m in extra_rows_re.finditer(block):
+    # Iterate every data row in the table; assign to a standard slot if the label
+    # matches exactly, otherwise append as a labelled "outros" line item.
+    row_re = re.compile(r"^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|$", re.MULTILINE)
+    for m in row_re.finditer(block):
         label = m.group(1).strip()
-        if label.startswith("**") or label in known_labels:
+        val_str = m.group(2).strip()
+        if (not label or label.startswith("---") or label.startswith("**")
+                or label == "Especificação" or label.upper().startswith("TOTAL")):
             continue
-        # Skip already-handled rows by prefix matching
-        if any(label.startswith(k) for k in ("Plano Coop", "Zeladoria", "Sustento", "Missões", "COPASA", "CEMIG", "Manutenção", "Despesas", "Outros", "TOTAL")):
+        value = parse_brl(val_str)
+        slot = next((k for k, pat in STANDARD_SAIDA_LABELS.items() if pat.match(label)), None)
+        if slot:
+            if value is None and slot in SCALAR_ZERO_DEFAULT:
+                setattr(s, slot, 0.0)
+            else:
+                setattr(s, slot, value)
             continue
-        valor = parse_brl(m.group(2))
-        if valor is not None:
-            s.outros.append({"descricao": label, "valor": valor})
+        om = OUTROS_STD.match(label)
+        if om:
+            desc = (om.group(2) or "").strip() or "Outros"
+            if value is not None:
+                s.outros.append({"descricao": desc, "valor": value})
+            continue
+        if value is not None:
+            s.outros.append({"descricao": label, "valor": value})
     total_match = re.search(r"TOTAL SAÍDAS[^|]*\|\s*\*{0,2}\s*([^|*]+?)\s*\*{0,2}\s*\|", block)
-    s.total = parse_brl(total_match.group(1)) or 0.0
+    s.total = parse_brl(total_match.group(1)) if total_match else 0.0
     return s
 
 
@@ -171,9 +172,10 @@ def parse_resumo(md: str) -> dict:
     end = end_idx if end_idx != -1 else len(md)
     block = md[start:end]
     result = {}
+    # Capture value between pipes verbatim; parse_brl handles both `-R$ X` and `R$ -X`.
     for key, pat in [
-        ("saldoMes", r"Saldo do Mês\*?\*?\s*\|\s*\*{0,2}\s*(-?\s*R?\$?\s*[\d.,]+)\s*\*{0,2}\s*\|"),
-        ("novoSaldo", r"Novo Saldo Para o Próximo Mês\*?\*?\s*\|\s*\*{0,2}\s*(-?\s*R?\$?\s*[\d.,]+)\s*\*{0,2}\s*\|"),
+        ("saldoMes", r"Saldo do Mês\*?\*?\s*\|\s*\*{0,2}\s*([^|*]+?)\s*\*{0,2}\s*\|"),
+        ("novoSaldo", r"Novo Saldo Para o Próximo Mês\*?\*?\s*\|\s*\*{0,2}\s*([^|*]+?)\s*\*{0,2}\s*\|"),
     ]:
         m = re.search(pat, block)
         result[key] = parse_brl(m.group(1)) if m else None
@@ -199,6 +201,36 @@ def parse_mes(md: str, ref: str) -> dict:
                                 ("ofertas", soma_of, total_ofertas)]:
         if abs(soma - total) > 0.01:
             flags.append({"campo": label, "motivo": f"soma {soma:.2f} ≠ total manuscrito {total:.2f}"})
+
+    # Soma dos 3 blocos de entrada precisa bater com "Total de Entradas Deste Mês"
+    soma_entradas = total_membros + total_nm + total_ofertas
+    total_mes = entrada_geral.get("totalMes")
+    if total_mes is not None and abs(soma_entradas - total_mes) > 0.01:
+        flags.append({"campo": "totalEntradas",
+                      "motivo": f"membros+naoMembros+ofertas {soma_entradas:.2f} ≠ Total de Entradas Deste Mês {total_mes:.2f}"})
+
+    # Soma dos itens de saída (scalars + outros) precisa bater com TOTAL SAÍDAS
+    scalar_saidas = sum((getattr(saidas, k) or 0.0) for k in (
+        "plano_cooperativo", "zeladoria", "sustento_ministerial",
+        "missoes", "copasa", "cemig", "manutencao", "despesas_eventuais"))
+    soma_saidas_itens = scalar_saidas + sum(o["valor"] for o in saidas.outros)
+    if abs(soma_saidas_itens - saidas.total) > 0.01:
+        flags.append({"campo": "saidas",
+                      "motivo": f"soma dos itens {soma_saidas_itens:.2f} ≠ TOTAL SAÍDAS {saidas.total:.2f}"})
+
+    # Identidade contábil: saldoAnterior + entradas - saidas == novoSaldo
+    sa = entrada_geral.get("saldoAnterior") or 0.0
+    te = total_mes or 0.0
+    calc_saldo_mes = te - saidas.total
+    calc_novo = sa + calc_saldo_mes
+    r_sm = resumo.get("saldoMes")
+    r_ns = resumo.get("novoSaldo")
+    if r_sm is not None and abs(calc_saldo_mes - r_sm) > 0.01:
+        flags.append({"campo": "saldoMes",
+                      "motivo": f"entradas-saidas = {calc_saldo_mes:.2f} ≠ Saldo do Mês {r_sm:.2f}"})
+    if r_ns is not None and abs(calc_novo - r_ns) > 0.01:
+        flags.append({"campo": "novoSaldo",
+                      "motivo": f"saldoAnterior+entradas-saidas = {calc_novo:.2f} ≠ Novo Saldo {r_ns:.2f}"})
 
     month_name = MONTH_NAMES[ref.split("-")[1]]
     return {
@@ -258,19 +290,31 @@ def main() -> int:
         return 2
 
     parsed = []
-    any_flagged = False
     print(f"Parsing {len(reports)} monthly reports from {args.source}:")
     for ref, path in reports:
-        mes = parse_mes(path.read_text(encoding="utf-8"), ref)
+        parsed.append(parse_mes(path.read_text(encoding="utf-8"), ref))
+
+    # Chain check: previous month's novoSaldo must equal current month's saldoAnterior
+    for prev, cur in zip(parsed, parsed[1:]):
+        prev_novo = prev["resumo"].get("novoSaldo")
+        cur_sa = cur.get("saldoAnterior")
+        if prev_novo is not None and cur_sa is not None and abs(prev_novo - cur_sa) > 0.01:
+            cur["validacao"]["flags"].append({
+                "campo": "chainSaldo",
+                "motivo": f"saldoAnterior {cur_sa:.2f} ≠ Novo Saldo de {prev['ref']} ({prev_novo:.2f})",
+            })
+            cur["validacao"]["status"] = "flagged"
+
+    any_flagged = False
+    for mes in parsed:
         status = mes["validacao"]["status"]
         if status != "ok":
             any_flagged = True
-            print(f"  ⚠ {ref}: FLAGGED — {len(mes['validacao']['flags'])} inconsistência(s)")
+            print(f"  ⚠ {mes['ref']}: FLAGGED — {len(mes['validacao']['flags'])} inconsistência(s)")
             for f in mes["validacao"]["flags"]:
                 print(f"      • {f['campo']}: {f['motivo']}")
         else:
-            print(f"  ✓ {ref}: totais conferem")
-        parsed.append(mes)
+            print(f"  ✓ {mes['ref']}: totais conferem")
 
     if args.check:
         print(f"\nCheck-only run. {'All OK.' if not any_flagged else 'Some months flagged.'}")
