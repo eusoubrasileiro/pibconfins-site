@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, AlertTriangle, Info } from "lucide-react";
 import monthly from "@/data/monthly.json";
 import type { Mes } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -8,8 +8,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableFooter, TableRow } from "@/components/ui/table";
 import { ContributorsTable } from "@/components/ContributorsTable";
 import { formatBRL } from "@/lib/currency";
+import { saidaAnnotations, type SaidaAnnotation } from "@/data/annotations";
 
 const meses = monthly as Mes[];
+
+function SaidaLabel({ label, annotation }: { label: string; annotation?: SaidaAnnotation }) {
+  if (!annotation) return <>{label}</>;
+  return (
+    <span className="inline-flex items-center gap-1.5" title={annotation.nota}>
+      {label}
+      <Badge variant="muted" className="gap-1 text-[10px]">
+        <Info className="h-3 w-3" />
+        {annotation.tag}
+      </Badge>
+    </span>
+  );
+}
 
 function findMes(ref: string | undefined): Mes | undefined {
   if (!ref) return undefined;
@@ -42,6 +56,7 @@ export default function MonthDetail() {
 
   const ok = mes.validacao.status === "ok";
   const saldoNegativo = mes.resumo.saldoMes < 0;
+  const annos = saidaAnnotations[mes.ref] ?? {};
 
   return (
     <div className="container py-10">
@@ -162,41 +177,28 @@ export default function MonthDetail() {
           <CardContent className="pt-0">
             <Table>
               <TableBody>
-                <TableRow>
-                  <TableCell>Plano Cooperativo</TableCell>
-                  <TableCell className="text-right tabular-nums">{formatBRL(mes.saidas.planoCooperativo)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Zeladoria (1/3 do salário vigente)</TableCell>
-                  <TableCell className="text-right tabular-nums">{formatBRL(mes.saidas.zeladoria)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Sustento Ministerial</TableCell>
-                  <TableCell className="text-right tabular-nums">{formatBRL(mes.saidas.sustentoMinisterial)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Missões</TableCell>
-                  <TableCell className="text-right tabular-nums">{formatBRL(mes.saidas.missoes)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>COPASA</TableCell>
-                  <TableCell className="text-right tabular-nums">{formatBRL(mes.saidas.copasa)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>CEMIG</TableCell>
-                  <TableCell className="text-right tabular-nums">{formatBRL(mes.saidas.cemig)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Manutenção e Limpeza</TableCell>
-                  <TableCell className="text-right tabular-nums">{formatBRL(mes.saidas.manutencao)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Despesas Eventuais</TableCell>
-                  <TableCell className="text-right tabular-nums">{formatBRL(mes.saidas.despesasEventuais)}</TableCell>
-                </TableRow>
+                {([
+                  ["planoCooperativo", "Plano Cooperativo", mes.saidas.planoCooperativo],
+                  ["zeladoria", "Zeladoria (1/3 do salário vigente)", mes.saidas.zeladoria],
+                  ["sustentoMinisterial", "Sustento Ministerial", mes.saidas.sustentoMinisterial],
+                  ["missoes", "Missões", mes.saidas.missoes],
+                  ["copasa", "COPASA", mes.saidas.copasa],
+                  ["cemig", "CEMIG", mes.saidas.cemig],
+                  ["manutencao", "Manutenção e Limpeza", mes.saidas.manutencao],
+                  ["despesasEventuais", "Despesas Eventuais", mes.saidas.despesasEventuais],
+                ] as const).map(([slot, label, valor]) => (
+                  <TableRow key={slot}>
+                    <TableCell>
+                      <SaidaLabel label={label} annotation={annos[slot]} />
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">{formatBRL(valor)}</TableCell>
+                  </TableRow>
+                ))}
                 {mes.saidas.outros.map((o, i) => (
                   <TableRow key={i}>
-                    <TableCell className="text-muted-foreground">Outros — {o.descricao}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      <SaidaLabel label={`Outros — ${o.descricao}`} annotation={annos[o.descricao]} />
+                    </TableCell>
                     <TableCell className="text-right tabular-nums">{formatBRL(o.valor)}</TableCell>
                   </TableRow>
                 ))}
