@@ -1,4 +1,5 @@
-import { Building2 } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { Building2, Eye, EyeOff } from "lucide-react";
 import monthly from "@/data/monthly.json";
 import type { Mes } from "@/types";
 import { KpiTile } from "@/components/KpiTile";
@@ -25,6 +26,11 @@ function yoyDelta(a: number, b: number): string {
 }
 
 export default function Home() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const apresentacao = searchParams.get("modo") === "apresentacao";
+  const toggleModo = () => {
+    setSearchParams(apresentacao ? {} : { modo: "apresentacao" }, { replace: true });
+  };
   const atual = meses[meses.length - 1];
   const currentYear = Number(atual.ref.slice(0, 4));
   const prevYear = currentYear - 1;
@@ -35,12 +41,18 @@ export default function Home() {
   const ativosAtual = ativos[ativos.length - 1];
   const ativosAnt = ativos[ativos.length - 2];
 
+  const n = yearB.length;
   const entAnoAnt = sumEntradas(yearA);
   const entAnoAtual = sumEntradas(yearB);
   const saiAnoAnt = sumSaidas(yearA);
   const saiAnoAtual = sumSaidas(yearB);
+  const avgEntAnt = n > 0 ? entAnoAnt / n : 0;
+  const avgEntAtual = n > 0 ? entAnoAtual / n : 0;
+  const avgSaiAnt = n > 0 ? saiAnoAnt / n : 0;
+  const avgSaiAtual = n > 0 ? saiAnoAtual / n : 0;
   const sustentoYTD = yearB.reduce((a, m) => a + m.saidas.sustentoMinisterial, 0);
   const pctSustento = entAnoAtual > 0 ? ((sustentoYTD / entAnoAtual) * 100).toFixed(0) : "—";
+  const monthLabel = n > 0 ? `média Jan–${yearB[n - 1].nome.split("/")[0].slice(0, 3)}` : "";
 
   const byYear: Record<number, Mes[]> = {};
   for (const m of meses) {
@@ -63,70 +75,85 @@ export default function Home() {
             </p>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={toggleModo}
+          className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-accent/20"
+          title={apresentacao ? "Voltar ao modo completo" : "Modo apresentação — visão simplificada"}
+        >
+          {apresentacao ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+          {apresentacao ? "Modo completo" : "Apresentação"}
+        </button>
       </header>
 
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
-        <KpiTile label="Saldo atual" value={formatBRL(atual.resumo.novoSaldo)} sub={`fim de ${atual.nome}`} />
+      <section className={`grid grid-cols-2 gap-4 ${apresentacao ? "lg:grid-cols-4" : "lg:grid-cols-3 xl:grid-cols-6"}`}>
+        <KpiTile label="Saldo atual" value={formatBRL(atual.resumo.novoSaldo)} sub={apresentacao ? undefined : `fim de ${atual.nome}`} />
         <KpiTile
           label={`Contribuintes ${atual.nome.split("/")[0]}`}
           value={String(ativosAtual.total)}
-          sub={ativosAnt ? `${ativosAtual.total - ativosAnt.total >= 0 ? "+" : ""}${ativosAtual.total - ativosAnt.total} vs mês ant.` : ""}
+          sub={apresentacao ? undefined : (ativosAnt ? `${ativosAtual.total - ativosAnt.total >= 0 ? "+" : ""}${ativosAtual.total - ativosAnt.total} vs mês ant.` : "")}
         />
         <KpiTile
-          label={`Entradas YTD ${currentYear}`}
-          value={formatBRL(entAnoAtual)}
-          sub={`${yoyDelta(entAnoAnt, entAnoAtual)} vs ${prevYear}`}
+          label={`Entradas — ${monthLabel}`}
+          value={formatBRL(avgEntAtual)}
+          sub={apresentacao ? undefined : `${yoyDelta(avgEntAnt, avgEntAtual)} vs ${prevYear} · total ${formatBRL(entAnoAtual)}`}
           tone="positive"
         />
         <KpiTile
-          label={`Saídas YTD ${currentYear}`}
-          value={formatBRL(saiAnoAtual)}
-          sub={`${yoyDelta(saiAnoAnt, saiAnoAtual)} vs ${prevYear}`}
+          label={`Saídas — ${monthLabel}`}
+          value={formatBRL(avgSaiAtual)}
+          sub={apresentacao ? undefined : `${yoyDelta(avgSaiAnt, avgSaiAtual)} vs ${prevYear} · total ${formatBRL(saiAnoAtual)}`}
           tone="negative"
         />
-        <KpiTile label="Sustento min. / entradas" value={`${pctSustento}%`} sub={`${formatBRL(sustentoYTD)} YTD`} />
-        <KpiTile
-          label={`Saldo ${prevYear} → ${currentYear}`}
-          value={formatBRL(atual.resumo.novoSaldo - (meses.find((m) => m.ref === `${prevYear}-01`)?.saldoAnterior ?? 0))}
-          sub="variação total de caixa"
-        />
+        {!apresentacao && (
+          <>
+            <KpiTile label="Sustento min. / entradas" value={`${pctSustento}%`} sub={`${formatBRL(sustentoYTD)} YTD`} />
+            <KpiTile
+              label={`Saldo ${prevYear} → ${currentYear}`}
+              value={formatBRL(atual.resumo.novoSaldo - (meses.find((m) => m.ref === `${prevYear}-01`)?.saldoAnterior ?? 0))}
+              sub="variação total de caixa"
+            />
+          </>
+        )}
       </section>
 
       <section className="mt-10">
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="text-lg font-semibold">Entradas vs saídas por mês</h2>
-          <span className="text-xs text-muted-foreground">valores em R$</span>
+          {!apresentacao && <span className="text-xs text-muted-foreground">valores em R$</span>}
         </div>
         <div className="rounded-lg border bg-card p-4">
-          <TrendChart meses={meses} />
+          <TrendChart meses={meses} apresentacao={apresentacao} />
         </div>
       </section>
 
       <section className="mt-10 grid gap-6 lg:grid-cols-2">
         <div className="rounded-lg border bg-card p-4">
           <h2 className="mb-2 text-lg font-semibold">Contribuintes ativos por mês</h2>
-          <ContribChart meses={meses} />
+          <ContribChart meses={meses} apresentacao={apresentacao} />
         </div>
         <div className="rounded-lg border bg-card p-4">
           <h2 className="mb-2 text-lg font-semibold">Saldo acumulado</h2>
-          <SaldoAcumuladoChart meses={meses} />
+          <SaldoAcumuladoChart meses={meses} apresentacao={apresentacao} />
         </div>
       </section>
 
       <section className="mt-10 grid gap-6 lg:grid-cols-2">
-        <YoyTable meses={meses} yearA={prevYear} yearB={currentYear} />
+        <YoyTable meses={meses} yearA={prevYear} yearB={currentYear} apresentacao={apresentacao} />
         <RetencaoCard meses={meses} yearA={prevYear} yearB={currentYear} />
       </section>
 
-      <section className="mt-10 grid gap-6 lg:grid-cols-2">
-        <CategoriaDonut data={composicaoEntradas(meses, currentYear)} title={`Composição de entradas — ${currentYear} YTD`} />
-        <CategoriaDonut data={composicaoSaidas(meses, currentYear)} title={`Composição de saídas — ${currentYear} YTD`} />
-      </section>
+      {!apresentacao && (
+        <section className="mt-10 grid gap-6 lg:grid-cols-2">
+          <CategoriaDonut data={composicaoEntradas(meses, currentYear)} title={`Composição de entradas — ${currentYear} YTD`} />
+          <CategoriaDonut data={composicaoSaidas(meses, currentYear)} title={`Composição de saídas — ${currentYear} YTD`} />
+        </section>
+      )}
 
       <section className="mt-10">
         <h2 className="mb-3 text-lg font-semibold">Relatórios por mês</h2>
         {years.map((y) => (
-          <YearAccordion key={y} year={y} meses={byYear[y]} defaultOpen={y === currentYear} />
+          <YearAccordion key={y} year={y} meses={byYear[y]} defaultOpen={!apresentacao && y === currentYear} />
         ))}
       </section>
 

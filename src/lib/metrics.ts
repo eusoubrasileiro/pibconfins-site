@@ -59,6 +59,17 @@ export function composicaoSaidas(meses: Mes[], year: number): CategoriaValor[] {
   ];
 }
 
+const COMPROMISSOS_FIXOS = new Set(["Sustento Ministerial", "Plano Cooperativo", "Zeladoria"]);
+
+export function composicaoSaidasAgrupada(meses: Mes[], year: number): CategoriaValor[] {
+  const raw = composicaoSaidas(meses, year);
+  const fixedTotal = raw.filter((r) => COMPROMISSOS_FIXOS.has(r.categoria)).reduce((s, r) => s + r.valor, 0);
+  return [
+    { categoria: "Compromissos fixos", valor: fixedTotal },
+    ...raw.filter((r) => !COMPROMISSOS_FIXOS.has(r.categoria)),
+  ];
+}
+
 function contribuintesUnicos(meses: Mes[]): Set<string> {
   const set = new Set<string>();
   for (const m of meses) {
