@@ -1,4 +1,4 @@
-### Deploy compose — lives at /root/pibconfins/ on the Hostinger VPS.
+### Deploy compose — lives at /opt/amiticia/pibconfins/ on the Hostinger VPS.
 ### Use: `docker compose -f docker-compose.yml up -d`
 ### GHA runs this after pulling the latest image from ghcr.
 
