@@ -5,6 +5,7 @@ import type { Mes } from "@/types";
 import { KpiTile } from "@/components/KpiTile";
 import { TrendChart } from "@/components/TrendChart";
 import { ContribChart } from "@/components/ContribChart";
+import { DizimistasChart } from "@/components/DizimistasChart";
 import { SaldoAcumuladoChart } from "@/components/SaldoAcumuladoChart";
 import { CategoriaDonut } from "@/components/CategoriaDonut";
 import { YoyTable } from "@/components/YoyTable";
@@ -13,6 +14,7 @@ import { YearAccordion } from "@/components/YearAccordion";
 import { formatBRL } from "@/lib/currency";
 import {
   contribuintesAtivosPorMes,
+  membrosDizimistasPorMes,
   composicaoEntradas,
   composicaoSaidas,
   ytdComparavel,
@@ -40,6 +42,8 @@ export default function Home() {
   const ativos = contribuintesAtivosPorMes(meses);
   const ativosAtual = ativos[ativos.length - 1];
   const ativosAnt = ativos[ativos.length - 2];
+  const dizimistas = membrosDizimistasPorMes(meses);
+  const dizAtual = dizimistas[dizimistas.length - 1];
 
   const n = yearB.length;
   const entAnoAnt = sumEntradas(yearA);
@@ -94,6 +98,12 @@ export default function Home() {
           sub={apresentacao ? undefined : (ativosAnt ? `${ativosAtual.total - ativosAnt.total >= 0 ? "+" : ""}${ativosAtual.total - ativosAnt.total} vs mês ant.` : "")}
         />
         <KpiTile
+          label="Membros dizimistas"
+          value={`${Math.round(dizAtual.pct)}%`}
+          sub={apresentacao ? undefined : `${dizAtual.dizimistas} de ${dizAtual.rol} membros · ${atual.nome.split("/")[0]}`}
+          tone="positive"
+        />
+        <KpiTile
           label={`Entradas — ${monthLabel}`}
           value={formatBRL(avgEntAtual)}
           sub={apresentacao ? undefined : `${yoyDelta(avgEntAnt, avgEntAtual)} vs ${prevYear} · total ${formatBRL(entAnoAtual)}`}
@@ -135,6 +145,20 @@ export default function Home() {
         <div className="rounded-lg border bg-card p-4">
           <h2 className="mb-2 text-lg font-semibold">Saldo acumulado</h2>
           <SaldoAcumuladoChart meses={meses} apresentacao={apresentacao} />
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <div className="mb-3 flex items-baseline justify-between">
+          <h2 className="text-lg font-semibold">Membros que contribuíram com dízimo (% do rol)</h2>
+          {!apresentacao && (
+            <span className="text-xs text-muted-foreground">
+              {dizAtual.dizimistas} de {dizAtual.rol} membros em {atual.nome}
+            </span>
+          )}
+        </div>
+        <div className="rounded-lg border bg-card p-4">
+          <DizimistasChart meses={meses} />
         </div>
       </section>
 

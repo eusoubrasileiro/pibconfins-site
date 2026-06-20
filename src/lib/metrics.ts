@@ -14,6 +14,23 @@ export function contribuintesAtivosPorMes(meses: Mes[]): AtivosMes[] {
   });
 }
 
+export type Dizimistas = { ref: string; dizimistas: number; rol: number; pct: number };
+
+/**
+ * % de membros do rol que contribuíram com dízimo no mês.
+ * Denominador = total de membros listados no relatório do mês (a tabela "ENTRADAS — Membros"
+ * embute o rol canônico completo, com — para quem não contribuiu). Numerador = membros com valor > 0.
+ * Por construção o numerador é subconjunto do denominador, então pct ∈ [0, 100].
+ */
+export function membrosDizimistasPorMes(meses: Mes[]): Dizimistas[] {
+  return meses.map((m) => {
+    const rol = m.entradas.membros.length;
+    const dizimistas = m.entradas.membros.filter((c) => isAtivo(c.valor)).length;
+    const pct = rol > 0 ? (dizimistas / rol) * 100 : 0;
+    return { ref: m.ref, dizimistas, rol, pct };
+  });
+}
+
 export function ytdComparavel(meses: Mes[], yearA: number, yearB: number): { yearA: Mes[]; yearB: Mes[] } {
   const a = meses.filter((m) => m.ref.startsWith(String(yearA)));
   const b = meses.filter((m) => m.ref.startsWith(String(yearB)));
