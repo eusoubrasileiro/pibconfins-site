@@ -1,6 +1,13 @@
-### Deploy compose — lives at /opt/amiticia/pibconfins/ on the Hostinger VPS.
-### Use: `docker compose -f docker-compose.yml up -d`
-### GHA runs this after pulling the latest image from ghcr.
+### Deploy compose — lives at /opt/amiticia/pibconfins/deploy/ on the Hostinger
+### VPS, which is a checkout of this repo. GHA (.github/workflows/deploy.yml)
+### cd's there and runs `docker compose pull && up -d` after publishing the image.
+###
+### `name:` is load-bearing, and it is NOT the repo name. Compose derives the
+### project from the directory holding this file, so without the pin this becomes
+### a project called `deploy`. The running container carries `pibconfins` (the
+### deploy directory is /opt/amiticia/pibconfins, while the repo is
+### pibconfins-site) — the pin must match the container, not the repo.
+name: pibconfins
 
 services:
   pibconfins:

@@ -69,7 +69,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             set -e
-            cd /opt/amiticia/pibconfins
+            cd /opt/amiticia/pibconfins/deploy
             docker compose pull
             docker compose up -d
             docker image prune -f
