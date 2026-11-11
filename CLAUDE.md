@@ -35,7 +35,7 @@ Dashboard financeiro público da **Primeira Igreja Batista de Confins** (PIB Con
                    │ ssh → docker compose pull && up -d
                    ▼
 ┌────────────────────────────────────────────────────────────────────┐
-│  Hostinger VPS 69.62.103.190                                       │
+│  Hostinger VPS (ssh hostinger)                                     │
 │    /root/pibconfins/docker-compose.yml  ← compose de deploy        │
 │    Traefik v3: Host(amiticia.cc) && PathPrefix(/pibconfins)        │
 │    https://amiticia.cc/pibconfins  ← público, TLS via Let's Encrypt │
@@ -98,7 +98,7 @@ Se `build-data` reportar `⚠ FLAGGED`, parar e investigar a `.md` antes de publ
 Veja o README para overview. Detalhes operacionais:
 
 - **GHA**: `.github/workflows/deploy.yml` → build → `ghcr.io/eusoubrasileiro/pibconfins-site:latest` → SSH → `docker compose pull && up -d`.
-- **Secrets**: `SSH_HOST` (69.62.103.190), `SSH_USER` (root), `SSH_KEY` (ed25519 dedicada — par em `~/.ssh/pibconfins_deploy` local, pública já em `~root/.ssh/authorized_keys` na VPS).
+- **Secrets**: `SSH_HOST` (endereço da VPS; alias local `hostinger`), `SSH_USER`, `SSH_KEY` (ed25519 dedicada — par em `~/.ssh/pibconfins_deploy` local, pública já em `~root/.ssh/authorized_keys` na VPS).
 - **Compose na VPS**: `/root/pibconfins/docker-compose.yml`. Labels Traefik completas (PathPrefix + redirect HTTP→HTTPS + healthcheck). **Nenhuma mudança necessária no `amiticia-site`** — Traefik v3 prioriza o router com path mais específico.
 - **Roll back**: editar tag da imagem em `/root/pibconfins/docker-compose.yml` para `:sha-<short>` de um commit anterior e rodar `docker compose pull && up -d`.
 
