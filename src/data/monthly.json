@@ -8427,5 +8427,347 @@
       "status": "ok",
       "flags": []
     }
+  },
+  {
+    "ref": "2026-10",
+    "nome": "Outubro/2026",
+    "saldoAnterior": 46496.28,
+    "entradas": {
+      "membros": [
+        {
+          "nome": "Adenayr Morgan Marques",
+          "valor": 160.0
+        },
+        {
+          "nome": "Ailton Gomes da Silva",
+          "valor": null
+        },
+        {
+          "nome": "Alessandra Consolação Carneiro Pereira",
+          "valor": null
+        },
+        {
+          "nome": "André Lopes Ferreira",
+          "valor": 1400.0
+        },
+        {
+          "nome": "Antonia Vertelo",
+          "valor": null
+        },
+        {
+          "nome": "Arthur Patrick Reis de Jesus",
+          "valor": null
+        },
+        {
+          "nome": "Braz Francisco de Moura",
+          "valor": 400.0
+        },
+        {
+          "nome": "Carlos Eduardo Leal Moreira",
+          "valor": 200.0
+        },
+        {
+          "nome": "Celeste Pedro da Silva Alcântara",
+          "valor": null
+        },
+        {
+          "nome": "Cíntia Roberta Batista dos Santos",
+          "valor": null
+        },
+        {
+          "nome": "Claudineira Neris da Silva",
+          "valor": null
+        },
+        {
+          "nome": "Conceição",
+          "valor": null
+        },
+        {
+          "nome": "Eliana Rodrigues da Rocha Oliveira",
+          "valor": null
+        },
+        {
+          "nome": "Euza de Assis Mendes",
+          "valor": null
+        },
+        {
+          "nome": "Euzanete Severina de Assis Mendes",
+          "valor": 200.0
+        },
+        {
+          "nome": "Euzany Assis Mendes",
+          "valor": 510.0
+        },
+        {
+          "nome": "Harissa Morgan Marques",
+          "valor": null
+        },
+        {
+          "nome": "Ildeu Pereira de Alvim",
+          "valor": null
+        },
+        {
+          "nome": "Isabella Rangel Ezzughayyar Muritiba",
+          "valor": null
+        },
+        {
+          "nome": "Ithalo Carvalho de Assis Mendes",
+          "valor": null
+        },
+        {
+          "nome": "Ivana Brescia Espinosa de Moura",
+          "valor": 110.0
+        },
+        {
+          "nome": "Jasany Mendes",
+          "valor": null
+        },
+        {
+          "nome": "Jocely Ingrid da Silva Nascimento",
+          "valor": null
+        },
+        {
+          "nome": "Joel Domingos Pereira",
+          "valor": null
+        },
+        {
+          "nome": "Josino Marques Neto",
+          "valor": 250.0
+        },
+        {
+          "nome": "Juscelina Ramalho dos Santos",
+          "valor": null
+        },
+        {
+          "nome": "Jussara Maria Rodrigues Murta",
+          "valor": 520.0
+        },
+        {
+          "nome": "Laurilson Rodrigues",
+          "valor": null
+        },
+        {
+          "nome": "Pr. Luis Gustavo Amaral Muritiba",
+          "valor": 400.0
+        },
+        {
+          "nome": "Luiz Claudio Teixeira da Costa",
+          "valor": 200.0
+        },
+        {
+          "nome": "Maria Rosa da Costa",
+          "valor": 100.0
+        },
+        {
+          "nome": "Mariana Faustina da Silva",
+          "valor": null
+        },
+        {
+          "nome": "Marina Rosa da Costa",
+          "valor": null
+        },
+        {
+          "nome": "Marli Ferreira Lage",
+          "valor": null
+        },
+        {
+          "nome": "Orlando Xavier dos Santos",
+          "valor": 1250.0
+        },
+        {
+          "nome": "Paula Rodrigues Rosa Morais",
+          "valor": 124.5
+        },
+        {
+          "nome": "Richarlysson da Silva Nascimento",
+          "valor": null
+        },
+        {
+          "nome": "Rodrigo Guimarães Caldas",
+          "valor": null
+        },
+        {
+          "nome": "Ronald Alexander Morais Pereira",
+          "valor": 900.0
+        },
+        {
+          "nome": "Rosângela Nunes Carvalho",
+          "valor": null
+        },
+        {
+          "nome": "Roseli Aparecida Gomes",
+          "valor": null
+        },
+        {
+          "nome": "Thayná Carvalho de Assis Mendes",
+          "valor": null
+        },
+        {
+          "nome": "Valéria Teixeira de Rezende",
+          "valor": null
+        },
+        {
+          "nome": "Vanessa Christina Moreira Gomes",
+          "valor": null
+        },
+        {
+          "nome": "Victor Hugo Costa e Flores",
+          "valor": null
+        },
+        {
+          "nome": "Waldemar das Chagas",
+          "valor": null
+        },
+        {
+          "nome": "Wdisleia Rodrigues Leal",
+          "valor": null
+        },
+        {
+          "nome": "Wdison Carlos A. Murta",
+          "valor": 1000.0
+        },
+        {
+          "nome": "Wesley Henrique da Silva Chagas",
+          "valor": null
+        },
+        {
+          "nome": "Maria Antonela",
+          "valor": 22.0
+        }
+      ],
+      "naoMembros": [
+        {
+          "nome": "Antônio",
+          "valor": null
+        },
+        {
+          "nome": "Bartíria",
+          "valor": null
+        },
+        {
+          "nome": "Célia Maria Santos Oliveira",
+          "valor": null
+        },
+        {
+          "nome": "Elenira Queiroz Souza Melo",
+          "valor": null
+        },
+        {
+          "nome": "Fátima",
+          "valor": 170.0
+        },
+        {
+          "nome": "Ian",
+          "valor": null
+        },
+        {
+          "nome": "José",
+          "valor": null
+        },
+        {
+          "nome": "Lorena Cristina de Faria",
+          "valor": null
+        },
+        {
+          "nome": "Maria Lia",
+          "valor": 900.0
+        },
+        {
+          "nome": "Márcia Cristina de Almeida",
+          "valor": null
+        },
+        {
+          "nome": "Marco Aurélio",
+          "valor": null
+        },
+        {
+          "nome": "Mayara Margarida Inácio",
+          "valor": null
+        },
+        {
+          "nome": "Valquíria",
+          "valor": null
+        },
+        {
+          "nome": "Waldivino",
+          "valor": null
+        },
+        {
+          "nome": "Juliano Alberto Azevedo de Oliveira",
+          "valor": null
+        },
+        {
+          "nome": "Olga",
+          "valor": 100.0
+        },
+        {
+          "nome": "Adele e Hélio",
+          "valor": 35.0
+        },
+        {
+          "nome": "Guilherme Augusto Oliveira Xavier",
+          "valor": 600.0
+        }
+      ],
+      "ofertas": {
+        "anonimas": 738.05,
+        "missoes": 400.0,
+        "recantoVida": null,
+        "beneficencia": null,
+        "outros": 1000.0
+      },
+      "totais": {
+        "membros": 7746.5,
+        "naoMembros": 1805.0,
+        "ofertas": 2138.05,
+        "geral": 11689.55
+      }
+    },
+    "saidas": {
+      "planoCooperativo": 774.65,
+      "zeladoria": 541.0,
+      "sustentoMinisterial": 5900.0,
+      "missoes": null,
+      "copasa": 56.52,
+      "cemig": null,
+      "manutencao": null,
+      "despesasEventuais": null,
+      "outros": [
+        {
+          "descricao": "Violonista (setembro e outubro)",
+          "valor": 1170.0
+        },
+        {
+          "descricao": "Lembranças (Profs. EBD, Pr. Felipe, Lígia — dia das Mulheres)",
+          "valor": 309.0
+        },
+        {
+          "descricao": "Banner e corda",
+          "valor": 203.0
+        },
+        {
+          "descricao": "Aniversário da igreja (Euzes 526,00, Placa Arlécio 320,00, Salgados 115,00)",
+          "valor": 961.0
+        },
+        {
+          "descricao": "Mesa de som digital Soundcraft Ui16",
+          "valor": 1800.0
+        }
+      ],
+      "total": 11715.17
+    },
+    "resumo": {
+      "saldoMes": -25.62,
+      "novoSaldo": 46470.64
+    },
+    "validacao": {
+      "status": "flagged",
+      "flags": [
+        {
+          "campo": "novoSaldo",
+          "motivo": "saldoAnterior+entradas-saidas = 46470.66 ≠ Novo Saldo 46470.64"
+        }
+      ]
+    }
   }
 ]
