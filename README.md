@@ -24,7 +24,7 @@ npm run dev             # http://localhost:8081/pibconfins/
 ## Deploy
 
 - **Imagem**: `ghcr.io/eusoubrasileiro/pibconfins-site:latest`
-- **Host**: Hostinger VPS, container em `/root/pibconfins/`
+- **Host**: Hostinger VPS, checkout em `/opt/amiticia/pibconfins/`, compose em `deploy/`
 - **Traefik**: `PathPrefix(/pibconfins)` em `Host(amiticia.cc)`, TLS via `myresolver`
 - **Prefix routing**: Vite `base: "/pibconfins/"` + `<BrowserRouter basename="/pibconfins">` (sem StripPrefix no Traefik)
 

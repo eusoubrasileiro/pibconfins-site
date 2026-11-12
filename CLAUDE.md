@@ -36,7 +36,7 @@ Dashboard financeiro público da **Primeira Igreja Batista de Confins** (PIB Con
                    ▼
 ┌────────────────────────────────────────────────────────────────────┐
 │  Hostinger VPS (ssh hostinger)                                     │
-│    /root/pibconfins/docker-compose.yml  ← compose de deploy        │
+│    /opt/amiticia/pibconfins/deploy/docker-compose.yaml  ← deploy  │
 │    Traefik v3: Host(amiticia.cc) && PathPrefix(/pibconfins)        │
 │    https://amiticia.cc/pibconfins  ← público, TLS via Let's Encrypt │
 └────────────────────────────────────────────────────────────────────┘
@@ -99,8 +99,8 @@ Veja o README para overview. Detalhes operacionais:
 
 - **GHA**: `.github/workflows/deploy.yml` → build → `ghcr.io/eusoubrasileiro/pibconfins-site:latest` → SSH → `docker compose pull && up -d`.
 - **Secrets**: `SSH_HOST` (endereço da VPS; alias local `hostinger`), `SSH_USER`, `SSH_KEY` (ed25519 dedicada — par em `~/.ssh/pibconfins_deploy` local, pública já em `~root/.ssh/authorized_keys` na VPS).
-- **Compose na VPS**: `/root/pibconfins/docker-compose.yml`. Labels Traefik completas (PathPrefix + redirect HTTP→HTTPS + healthcheck). **Nenhuma mudança necessária no `amiticia-site`** — Traefik **não** prioriza por path mais específico: ordena pelo **comprimento da regra**. Em Nov/2026 a regra do amiticia-site passou a listar 4 hosts, ficou maior que a nossa e engoliu `/pibconfins` (servia a landing page). Por isso o router tem `priority=1000` explícito no compose — não remover.
-- **Roll back**: editar tag da imagem em `/root/pibconfins/docker-compose.yml` para `:sha-<short>` de um commit anterior e rodar `docker compose pull && up -d`.
+- **Compose na VPS**: `/opt/amiticia/pibconfins/deploy/docker-compose.yaml` (checkout deste repo; o deploy faz `git pull`). Labels Traefik completas (PathPrefix + redirect HTTP→HTTPS + healthcheck). **Nenhuma mudança necessária no `amiticia-site`** — Traefik **não** prioriza por path mais específico: ordena pelo **comprimento da regra**. Em Nov/2026 a regra do amiticia-site passou a listar 4 hosts, ficou maior que a nossa e engoliu `/pibconfins` (servia a landing page). Por isso o router tem `priority=1000` explícito no compose — não remover.
+- **Roll back**: editar tag da imagem em `/opt/amiticia/pibconfins/deploy/docker-compose.yaml` (checkout deste repo; o deploy faz `git pull`) para `:sha-<short>` de um commit anterior e rodar `docker compose pull && up -d`.
 
 ## Gotchas
 
