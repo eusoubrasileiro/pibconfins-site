@@ -85,7 +85,7 @@ export default function MonthDetail() {
 
       {!ok && mes.validacao.flags.length > 0 && (
         <div className="mt-6 rounded-lg border border-warning/40 bg-warning/10 p-4 text-sm">
-          <div className="mb-1 font-medium text-warning-foreground">Ressalvas de validação</div>
+          <div className="mb-1 font-medium text-foreground">Ressalvas de validação</div>
           <ul className="list-disc pl-5 text-muted-foreground">
             {mes.validacao.flags.map((f, i) => (
               <li key={i}>
