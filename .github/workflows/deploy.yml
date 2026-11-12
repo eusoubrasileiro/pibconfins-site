@@ -70,6 +70,7 @@ jobs:
           script: |
             set -e
             cd /opt/amiticia/pibconfins/deploy
+            git pull --ff-only
             docker compose pull
             docker compose up -d
             docker image prune -f

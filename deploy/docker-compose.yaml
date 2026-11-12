@@ -23,9 +23,14 @@ services:
       - "traefik.http.routers.pibconfins.rule=Host(`amiticia.cc`) && PathPrefix(`/pibconfins`)"
       - "traefik.http.routers.pibconfins.entrypoints=websecure"
       - "traefik.http.routers.pibconfins.tls.certresolver=myresolver"
+      # Explicit priority. Traefik ranks routers by rule LENGTH by default, and the
+      # amiticia-site catch-all lists 4 hosts, so its rule is longer than ours and
+      # it silently swallowed /pibconfins (2026-11). Must stay above amiticia-k (100).
+      - "traefik.http.routers.pibconfins.priority=1000"
       # HTTP → HTTPS redirect for the same path
       - "traefik.http.routers.pibconfins-redirect.rule=Host(`amiticia.cc`) && PathPrefix(`/pibconfins`)"
       - "traefik.http.routers.pibconfins-redirect.entrypoints=web"
+      - "traefik.http.routers.pibconfins-redirect.priority=1000"
       - "traefik.http.routers.pibconfins-redirect.middlewares=pibconfins-https"
       - "traefik.http.middlewares.pibconfins-https.redirectscheme.scheme=https"
       # Service port + health (the dashboard root responds under /pibconfins/)
