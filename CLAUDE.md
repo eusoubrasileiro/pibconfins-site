@@ -16,12 +16,12 @@ Dashboard financeiro público da **Primeira Igreja Batista de Confins** (PIB Con
 │    ├── 2026-02-fevereiro/relatorio_mensal_2026-02.md               │
 │    ├── 2026-03-marco/relatorio_mensal_2026-03.md                   │
 │    ├── contribuintes.csv, dizimos-historico.csv, ...               │
-│    └── Tesouraria <Mes>.pdf         ← PDFs assinados (originais)   │
+│    └── */relatorio_assinado_*       ← folha assinada (pdf/jpg)     │
 └──────────────────┬─────────────────────────────────────────────────┘
                    │ npm run build-data
                    ▼
 ┌────────────────────────────────────────────────────────────────────┐
-│  ~/Projects/amiticia/repositories/pibconfins-site/  (ESTE repo)    │
+│  ~/Projects/amiticia/repositories/side-projects/pibconfins-site/   │
 │    scripts/build_data.py  ← parseia os .md, valida totais          │
 │    src/data/monthly.json  ← gerado; committed                      │
 │    src/pages/Home.tsx, MonthDetail.tsx  ← SPA                      │
@@ -44,7 +44,7 @@ Dashboard financeiro público da **Primeira Igreja Batista de Confins** (PIB Con
 
 ## Fonte de dados (crítico)
 
-**O ground truth de cada mês é o PDF manuscrito assinado** na reunião mensal de contagem, arquivado como `Tesouraria <Mês>.pdf` ou `relatorio_assinado_<ano-mês>.pdf` no repo Finance.
+**O ground truth de cada mês é o PDF manuscrito assinado** na reunião mensal de contagem, arquivado como `relatorio_assinado_<ano-mês>*.{pdf,jpg}` na pasta do mês, no Finance (desde Jun/2026: duas fotos que o Ronald manda no grupo).
 
 A versão digital é o `relatorio_mensal_YYYY-MM.md` dentro de `<ano-mês-nome>/`, transcrito manualmente do PDF e **validado via checksum**: a soma das linhas individuais (membros, não membros, ofertas, saídas) precisa bater com o TOTAL manuscrito de cada bloco. Se não bater, a transcrição tem que ser revisada — não o dashboard.
 
@@ -64,7 +64,7 @@ Este repo depende do layout de `~/Data/Documents/Finance/Tesouraria-PIB-Confins/
 | `contribuintes.csv` | Roster canônico de membros e não-membros + CPFs mascarados. |
 | `dizimos-historico.csv` | Log append-only de toda contribuição (usado pelo sync, não por este dashboard). |
 | `despesas-recorrentes.md` | Categorias fixas mensais (Copasa, CEMIG, Sustento, Zeladoria, Plano Coop). |
-| `Tesouraria <Mês>.pdf` | PDF assinado — fonte primária para transcrição do `.md`. |
+| `*/relatorio_assinado_*` | Folha assinada — fonte primária para transcrição do `.md`. |
 
 Skills `/tesouraria-sync` e `/tesouraria-fechar` (no Finance) produzem os `.md` mensais. Este repo só consome.
 
@@ -73,7 +73,7 @@ Skills `/tesouraria-sync` e `/tesouraria-fechar` (no Finance) produzem os `.md` 
 Depois de fechar um mês novo (ex.: Abr/2026 é fechado via `/tesouraria-fechar` no Finance):
 
 ```bash
-cd ~/Projects/amiticia/repositories/pibconfins-site
+cd ~/Projects/amiticia/repositories/side-projects/pibconfins-site
 npm install                       # se ambiente novo
 npm run build-data                # lê todos os .md, valida, escreve src/data/monthly.json
 npm run build                     # sanity check TS + bundle
@@ -83,7 +83,7 @@ git push origin main
 # GHA: build (~90s) → deploy (~15s). Site atualiza em ~2 min.
 ```
 
-Se `build-data` reportar `⚠ FLAGGED`, parar e investigar a `.md` antes de publicar — o dashboard vai mostrar ressalva pública senão.
+Se `build-data` reportar `⚠ FLAGGED`, parar e investigar a `.md` antes de publicar. Erro de **transcrição** → corrigir a `.md`. Erro **no próprio manuscrito** (Jun/2026, Out/2026) → publicar assim mesmo: a ressalva pública é o comportamento certo, e a `.md` explica no cabeçalho.
 
 ## Stack (para edições)
 
